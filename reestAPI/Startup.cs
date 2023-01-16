@@ -10,7 +10,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using reestAPI.Models;
+using reestAPI.Services;
 
 namespace reestAPI
 {
@@ -26,12 +29,17 @@ namespace reestAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<ReestrDatabaseSettings>(
+                Configuration.GetSection(nameof(ReestrDatabaseSettings)));
 
+            services.AddSingleton<IReestrDatabaseSettings>(sp =>
+                sp.GetRequiredService<IOptions<ReestrDatabaseSettings>>().Value);
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "reestAPI", Version = "v1" });
             });
+            services.AddSingleton<ReestrService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
